@@ -34,7 +34,7 @@ function setup() {
 }
 
 function draw() {
-  for (i=0; i<10; i=(i+1)|0){
+  for (i=0; i<100; i=(i+1)|0){
     minRoute = swap(minRoute);
   }
   // 線を引く
@@ -43,32 +43,25 @@ function draw() {
 
 // swap ２つの経路を交差するように入れ替えて判断。
 function swap(route) {
-  let root1 = 0;
-  let leaf1 = 0;
-  let root2 = 0;
-  let leaf2 = 0;
-  while(true){
-    root1 = Math.floor(Math.random() * n);
-    root2 = Math.floor(Math.random() * n);
-    if (root1 == nMinus) {
-      leaf1 = 0;
-    } else {
-      leaf1 = root1+1;
-    }
-    if (root2 == 0) {
-      leaf2 = nMinus;
-    } else {
-      leaf2 = root2-1;
-    }
-
-    if (leaf2 != leaf1 && leaf2 != root1 && root1 != root2) {
-      break;
-    }
+  let branch1L = Math.floor(Math.random() * n);
+  if (branch1L == nMinus) {
+    var branch1R = 0;
+  } else {
+    var branch1R = branch1L+1;
+  }
+  let branch2L = branch1R + 1 + Math.floor(Math.random() * (n-3));
+  if (branch2L > nMinus) {
+    branch2L -= nMinus;
+  }
+  if (branch2L == nMinus) {
+    var branch2R = 0;
+  } else {
+    var branch2R = branch2L+1;
   }
 
   // 短くならなければおしまい。
-  if (distances[route[root1]][route[leaf1]]+distances[route[root2]][route[leaf2]]
-    < distances[route[root1]][route[leaf2]]+distances[route[root2]][route[leaf1]]) {
+  if (distances[route[branch1L]][route[branch1R]]+distances[route[branch2L]][route[branch2R]]
+    < distances[route[branch1L]][route[branch2L]]+distances[route[branch2R]][route[branch1R]]) {
     return route;
   }
 
@@ -78,22 +71,21 @@ function swap(route) {
     result[i] = route[i];
   }
 
-  let pointFrom = leaf1;
-  let pointTo = leaf2;
+  if (branch1R < branch2L) {
+    var pointFrom = branch1R;
+    var pointTo = branch2L;
+  } else {
+    var pointFrom = branch2R;
+    var pointTo = branch1L;
+  }
+
   while(true) {
     result[pointTo] = route[pointFrom];
-    if (pointFrom == leaf2) {
+    result[pointFrom] = route[pointTo];
+    pointFrom++;
+    pointTo--;
+    if (pointFrom >= pointTo) {
       break;
-    }
-    if (pointTo == 0) {
-      pointTo = nMinus;
-    } else {
-      pointTo--;
-    }
-    if (pointFrom == nMinus) {
-      pointFrom = 0;
-    } else {
-      pointFrom++;
     }
   }
   return result;
