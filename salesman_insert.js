@@ -2,7 +2,7 @@ const n = 100;
 const nMinus = n-1;
 let points = [];
 let distances = [];
-let minDistance = 1000000;
+let minDistance = 0;
 let minRoute = [n];
 
 function setup() {
@@ -25,6 +25,11 @@ function setup() {
     }
     distances[i] = distance;
   }
+
+  for (let i = 0; i < n-1; i++) {
+    minDistance += distances[i][i+1];
+  }
+  minDistance += distances[n-1][0];
 
   width = windowWidth;
   height = windowHeight;
@@ -50,7 +55,7 @@ function swap(route) {
   } else {
     var branch1R = branch1L+1;
   }
-  let branch2L = branch1R + 1 + Math.floor(Math.random() * (n-3));
+  let branch2L = branch1R + 1 + Math.floor(Math.random() * (n-4));
   if (branch2L > nMinus) {
     branch2L -= nMinus;
   }
@@ -61,10 +66,13 @@ function swap(route) {
   }
 
   // 短くならなければおしまい。
-  if (distances[route[branch1L]][route[branch1R]]+distances[route[branch2L]][route[branch2R]]
-    < distances[route[branch1L]][route[branch2L]]+distances[route[branch2R]][route[branch1R]]) {
+  let before = distances[route[branch1L]][route[branch1R]]+distances[route[branch2L]][route[branch2R]];
+  let after = distances[route[branch1L]][route[branch2L]]+distances[route[branch2R]][route[branch1R]];
+  if (before < after) {
     return route;
   }
+
+  minDistance += after - before;
 
   // 入れ替え処理
   let result = [n];
@@ -95,7 +103,7 @@ function swap(route) {
 // insert 点を別の経路の間に入れてみて判断。
 function insert(route) {
   let pointFrom = Math.floor(Math.random() * n);
-  let pointTo = pointFrom + Math.floor(Math.random() * n);
+  let pointTo = pointFrom + 1 + Math.floor(Math.random() * (n-3));
   if (pointTo > nMinus) {
     pointTo -= nMinus;
   }
@@ -119,11 +127,14 @@ function insert(route) {
   const swapPoint = route[pointFrom];
 
   // 短くならなければおしまい。
-  if (distances[route[beforePointFrom]][swapPoint]+distances[swapPoint][route[afterPointFrom]]+distances[route[pointTo]][route[afterPointTo]]
-    < distances[route[beforePointFrom]][route[afterPointFrom]]+distances[route[pointTo]][swapPoint]+distances[swapPoint][route[afterPointTo]]) {
+  let before = distances[route[beforePointFrom]][swapPoint]+distances[swapPoint][route[afterPointFrom]]+distances[route[pointTo]][route[afterPointTo]];
+  let after = distances[route[beforePointFrom]][route[afterPointFrom]]+distances[route[pointTo]][swapPoint]+distances[swapPoint][route[afterPointTo]];
+
+  if (before < after) {
     return route;
   }
 
+  minDistance += after - before;
   // 入れ替え処理
   let i = pointFrom;
   while(true) {
