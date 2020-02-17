@@ -2,15 +2,19 @@ const n = 100;
 const nMinus = n-1;
 let points = [];
 let distances = [];
+let firstDistance = 0;
 let minDistance = 0;
+let totalMinDistance = 0;
+let firstRoute = [n];
 let minRoute = [n];
+let totalMinRoute = [n];
 
 function setup() {
   // 点を配置
   for (let i = 0; i < n; i++) {
     let p = [Math.random() * windowWidth, Math.random() * windowHeight];
     points[i] = p;
-    minRoute[i] = i;
+    firstRoute[i] = i;
   }
 
   // 各点ごとの距離を計算
@@ -27,9 +31,29 @@ function setup() {
   }
 
   for (let i = 0; i < n-1; i++) {
-    minDistance += distances[i][i+1];
+    firstDistance += distances[i][i+1];
   }
-  minDistance += distances[n-1][0];
+  firstDistance += distances[n-1][0];
+
+  // 枝刈りをしたい場合は以下のコメントアウトを外す。
+  // ただ100回試行しているようなものなので、アルゴリズムとしては微妙。
+  // totalMinDistance = firstDistance;
+  // for (i=0; i<100; i++) {
+  //   minDistance = firstDistance;
+  //   minRoute = firstRoute.slice();
+  //   for (j=0; j<5000; j++) {
+  //     minRoute = swap(minRoute);
+  //     minRoute = insert(minRoute);
+  //   }
+  //   if (minDistance < totalMinDistance) {
+  //     totalMinDistance = minDistance;
+  //     totalMinRoute = minRoute.slice();
+  //   }
+  // }
+  // minDistance = totalMinDistance;
+  // minRoute = totalMinRoute.slice();
+  minDistance = firstDistance;
+  minRoute = firstRoute.slice();
 
   width = windowWidth;
   height = windowHeight;
@@ -55,9 +79,9 @@ function swap(route) {
   } else {
     var branch1R = branch1L+1;
   }
-  let branch2L = branch1R + 1 + Math.floor(Math.random() * (n-4));
+  let branch2L = branch1R + 1 + Math.floor(Math.random() * (n-3));
   if (branch2L > nMinus) {
-    branch2L -= nMinus;
+    branch2L -= n;
   }
   if (branch2L == nMinus) {
     var branch2R = 0;
@@ -103,9 +127,9 @@ function swap(route) {
 // insert 点を別の経路の間に入れてみて判断。
 function insert(route) {
   let pointFrom = Math.floor(Math.random() * n);
-  let pointTo = pointFrom + 1 + Math.floor(Math.random() * (n-3));
+  let pointTo = pointFrom + 1 + Math.floor(Math.random() * (n-2));
   if (pointTo > nMinus) {
-    pointTo -= nMinus;
+    pointTo -= n;
   }
   if (pointFrom == nMinus) {
     var beforePointFrom = pointFrom-1;
