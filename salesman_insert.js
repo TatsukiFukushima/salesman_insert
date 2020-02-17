@@ -34,8 +34,9 @@ function setup() {
 }
 
 function draw() {
-  for (i=0; i<100; i=(i+1)|0){
+  for (i=0; i<50; i=(i+1)|0){
     minRoute = swap(minRoute);
+    minRoute = insert(minRoute);
   }
   // 線を引く
   drawRoute(points, minRoute);
@@ -89,6 +90,55 @@ function swap(route) {
     }
   }
   return result;
+}
+
+// insert 点を別の経路の間に入れてみて判断。
+function insert(route) {
+  let pointFrom = Math.floor(Math.random() * n);
+  let pointTo = pointFrom + Math.floor(Math.random() * n);
+  if (pointTo > nMinus) {
+    pointTo -= nMinus;
+  }
+  if (pointFrom == nMinus) {
+    var beforePointFrom = pointFrom-1;
+    var afterPointFrom = 0;
+  } else if (pointFrom == 0) {
+    var beforePointFrom = nMinus;
+    var afterPointFrom = pointFrom+1;
+  } else {
+    var beforePointFrom = pointFrom-1;
+    var afterPointFrom = pointFrom+1;
+  }
+  if (pointTo == nMinus) {
+    var afterPointTo = 0;
+  } else {
+    var afterPointTo = pointTo+1;
+  }
+
+  // 入れ替えるポイント
+  const swapPoint = route[pointFrom];
+
+  // 短くならなければおしまい。
+  if (distances[route[beforePointFrom]][swapPoint]+distances[swapPoint][route[afterPointFrom]]+distances[route[pointTo]][route[afterPointTo]]
+    < distances[route[beforePointFrom]][route[afterPointFrom]]+distances[route[pointTo]][swapPoint]+distances[swapPoint][route[afterPointTo]]) {
+    return route;
+  }
+
+  // 入れ替え処理
+  let i = pointFrom;
+  while(true) {
+    if (i == pointTo) {
+      break;
+    } else if (i==nMinus) {
+      route[i] = route[0];
+      i = 0;
+    } else {
+      route[i] = route[i+1];
+      i++;
+    }
+  }
+  route[pointTo] = swapPoint;
+  return route;
 }
 
 // drawRoute ルートを描画する p:ポイント r:ルート
