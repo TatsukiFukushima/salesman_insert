@@ -35,25 +35,22 @@ function setup() {
   }
   firstDistance += distances[n-1][0];
 
-  // 枝刈りをしたい場合は以下のコメントアウトを外す。
-  // ただ100回試行しているようなものなので、アルゴリズムとしては微妙。
-  // totalMinDistance = firstDistance;
-  // for (i=0; i<100; i++) {
-  //   minDistance = firstDistance;
-  //   minRoute = firstRoute.slice();
-  //   for (j=0; j<5000; j++) {
-  //     minRoute = swap(minRoute);
-  //     minRoute = insert(minRoute);
-  //   }
-  //   if (minDistance < totalMinDistance) {
-  //     totalMinDistance = minDistance;
-  //     totalMinRoute = minRoute.slice();
-  //   }
-  // }
-  // minDistance = totalMinDistance;
-  // minRoute = totalMinRoute.slice();
-  minDistance = firstDistance;
-  minRoute = firstRoute.slice();
+  // 枝刈り。ただこれは100回試行しているようなものなので、アルゴリズムとしては微妙。なくても良い。
+  totalMinDistance = firstDistance;
+  for (i=0; i<100; i++) {
+    minDistance = firstDistance;
+    minRoute = firstRoute.slice();
+    for (j=0; j<3000; j++) {
+      minRoute = swap(minRoute);
+      minRoute = insert(minRoute);
+    }
+    if (minDistance < totalMinDistance) {
+      totalMinDistance = minDistance;
+      totalMinRoute = minRoute.slice();
+    }
+  }
+  minDistance = totalMinDistance;
+  minRoute = totalMinRoute.slice();
 
   width = windowWidth;
   height = windowHeight;
