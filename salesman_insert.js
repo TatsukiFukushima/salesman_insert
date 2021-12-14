@@ -5,6 +5,7 @@ let distances = [];
 let firstDistance = 0;
 let minDistance = 0;
 let totalMinDistance = 0;
+let loopCount = 0;
 let firstRoute = [n];
 let minRoute = [n];
 let totalMinRoute = [n];
@@ -35,22 +36,10 @@ function setup() {
   }
   firstDistance += distances[n-1][0];
 
-  // 枝刈り。ただこれは100回試行しているようなものなので、アルゴリズムとしては微妙。なくても良い。
   totalMinDistance = firstDistance;
-  for (i=0; i<100; i++) {
-    minDistance = firstDistance;
-    minRoute = firstRoute.slice();
-    for (j=0; j<3000; j++) {
-      minRoute = swap(minRoute);
-      minRoute = insert(minRoute);
-    }
-    if (minDistance < totalMinDistance) {
-      totalMinDistance = minDistance;
-      totalMinRoute = minRoute.slice();
-    }
-  }
-  minDistance = totalMinDistance;
-  minRoute = totalMinRoute.slice();
+  totalMinRoute = firstRoute.slice();
+  minDistance = firstDistance;
+  minRoute = firstRoute.slice();
 
   width = windowWidth;
   height = windowHeight;
@@ -60,12 +49,22 @@ function setup() {
 }
 
 function draw() {
-  for (i=0; i<50; i=(i+1)|0){
+  for (i=0; i<100; i=(i+1)|0){
     minRoute = swap(minRoute);
     minRoute = insert(minRoute);
   }
+  loopCount++;
+  if (loopCount > 400) {
+    if (minDistance < totalMinDistance) {
+      totalMinDistance = minDistance;
+      totalMinRoute = minRoute.slice();
+    }
+    loopCount = 0;
+    minDistance = firstDistance;
+    minRoute = firstRoute.slice();
+  }
   // 線を引く
-  drawRoute(points, minRoute);
+  drawRoute(points, totalMinRoute, minRoute);
 }
 
 // swap ２つの経路を交差するように入れ替えて判断。
@@ -173,20 +172,28 @@ function insert(route) {
   return route;
 }
 
-// drawRoute ルートを描画する p:ポイント r:ルート
-function drawRoute(p, r) {
+// drawRoute ルートを描画する p:ポイント tr:最短ルート r:ルート
+function drawRoute(p, tr, r) {
   noStroke();
   fill(0);
   rect(0, 0, width, height);
-  fill(255);
-  for (let i = 0; i < n; i++) {
-    ellipse(p[i][0], p[i][1], 10, 10);
-  }
 
   strokeWeight(1);
-  stroke(255);
+  stroke(150);
   line(p[r[nMinus]][0], p[r[nMinus]][1], p[r[0]][0], p[r[0]][1]);
   for (let i = 0; i < nMinus; i++) {
     line(p[r[i]][0], p[r[i]][1], p[r[i+1]][0], p[r[i+1]][1]);
+  }
+
+  strokeWeight(3);
+  stroke(255);
+  line(p[tr[nMinus]][0], p[tr[nMinus]][1], p[tr[0]][0], p[tr[0]][1]);
+  for (let i = 0; i < nMinus; i++) {
+    line(p[tr[i]][0], p[tr[i]][1], p[tr[i+1]][0], p[tr[i+1]][1]);
+  }
+
+  fill(255);
+  for (let i = 0; i < n; i++) {
+    ellipse(p[i][0], p[i][1], 10, 10);
   }
 }
